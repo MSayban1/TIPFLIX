@@ -15,14 +15,8 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick }) => {
         </h1>
       </div>
       
-      <div className="flex items-center space-x-6">
-        <a 
-          href="/admin.html" 
-          className="text-gray-500 hover:text-red-600 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
-        >
-          <i className="fas fa-user-shield"></i>
-          <span>Portal</span>
-        </a>
+      <div className="flex items-center">
+        {/* Admin Link Removed as per request */}
       </div>
     </header>
   );

@@ -26,7 +26,6 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Movies Listener
     const moviesRef = ref(db, 'movies');
     onValue(moviesRef, (snapshot) => {
       const data = snapshot.val();
@@ -42,7 +41,6 @@ const App: React.FC = () => {
       setLoading(false);
     });
 
-    // Banners Listener
     const bannersRef = ref(db, 'banners');
     onValue(bannersRef, (snapshot) => {
       const data = snapshot.val();
@@ -57,7 +55,6 @@ const App: React.FC = () => {
       }
     });
 
-    // Categories Listener
     const categoriesRef = ref(db, 'metadata/categories');
     onValue(categoriesRef, (snapshot) => {
       const data = snapshot.val();
@@ -76,20 +73,15 @@ const App: React.FC = () => {
   const handleMovieClick = (movie: Movie) => {
     setSelectedMovie(movie);
     setCurrentView(View.Details);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const filteredMovies = movies.filter(movie => {
     if (!movie.visible) return false;
-    
     const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          movie.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          movie.year.includes(searchQuery);
-                          
+                          movie.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === 'All' || movie.category === activeCategory;
-    
     const matchesLetter = activeLetter === 'All' || movie.title.toUpperCase().startsWith(activeLetter);
-
     return matchesSearch && matchesCategory && matchesLetter;
   });
 
@@ -98,9 +90,8 @@ const App: React.FC = () => {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex flex-col items-center justify-center h-[70vh]">
-          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-400 animate-pulse">Loading amazing content...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
       );
     }
@@ -108,7 +99,7 @@ const App: React.FC = () => {
     switch (currentView) {
       case View.Home:
         return (
-          <div className="pb-24 overflow-x-hidden">
+          <div className="w-full pb-32">
             <BannerSlider banners={banners} onBannerClick={(movieId) => {
               const movie = movies.find(m => m.id === movieId);
               if (movie) handleMovieClick(movie);
@@ -117,24 +108,22 @@ const App: React.FC = () => {
             <div className="px-4 mt-8 max-w-7xl mx-auto">
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 <span className="w-1 h-6 bg-red-600 rounded mr-3"></span>
-                Featured Movies
+                Featured
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {featuredMovies.length > 0 ? featuredMovies.map(movie => (
+                {featuredMovies.map(movie => (
                   <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie)} />
-                )) : (
-                   <p className="text-gray-500 col-span-full py-10 text-center">No featured movies found.</p>
-                )}
+                ))}
               </div>
             </div>
 
             <div className="px-4 mt-12 max-w-7xl mx-auto">
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 <span className="w-1 h-6 bg-red-600 rounded mr-3"></span>
-                Latest Releases
+                Latest
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {movies.filter(m => m.visible).slice(0, 15).map(movie => (
+                {movies.filter(m => m.visible).slice(0, 20).map(movie => (
                   <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie)} />
                 ))}
               </div>
@@ -144,8 +133,8 @@ const App: React.FC = () => {
 
       case View.Categories:
         return (
-          <div className="px-4 pb-32 pt-4 max-w-7xl mx-auto overflow-x-hidden">
-            <h1 className="text-2xl font-bold mb-6">Browse Categories</h1>
+          <div className="px-4 pb-32 pt-4 max-w-7xl mx-auto">
+            <h1 className="text-2xl font-bold mb-6">Categories</h1>
             <CategoryFilter categories={categories.map(c => c.name)} activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8">
               {filteredMovies.map(movie => (
@@ -157,8 +146,8 @@ const App: React.FC = () => {
 
       case View.Search:
         return (
-          <div className="px-4 pb-32 pt-4 max-w-7xl mx-auto overflow-x-hidden">
-            <div className="mb-8">
+          <div className="px-4 pb-32 pt-4 max-w-7xl mx-auto">
+            <div className="mb-6">
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
               <AZFilter activeLetter={activeLetter} onLetterChange={setActiveLetter} />
             </div>
@@ -166,12 +155,6 @@ const App: React.FC = () => {
               {filteredMovies.map(movie => (
                 <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie)} />
               ))}
-              {filteredMovies.length === 0 && (
-                <div className="col-span-full text-center py-20 text-gray-500">
-                  <i className="fas fa-search text-4xl mb-4"></i>
-                  <p>No results found for your search.</p>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -190,13 +173,12 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="w-full min-h-screen flex flex-col">
       <Header onLogoClick={() => {
         setCurrentView(View.Home);
         window.scrollTo(0, 0);
       }} />
-      {/* pt-16 ensures content starts below the fixed header on all screens */}
-      <main className="flex-grow pt-16 w-full overflow-x-hidden">
+      <main className="flex-grow pt-16 w-full">
         {renderContent()}
       </main>
       <BottomNav activeView={currentView} onNavClick={setCurrentView} />
