@@ -108,13 +108,13 @@ const App: React.FC = () => {
     switch (currentView) {
       case View.Home:
         return (
-          <div className="pb-24">
+          <div className="pb-24 overflow-x-hidden">
             <BannerSlider banners={banners} onBannerClick={(movieId) => {
               const movie = movies.find(m => m.id === movieId);
               if (movie) handleMovieClick(movie);
             }} />
             
-            <div className="px-4 mt-8">
+            <div className="px-4 mt-8 max-w-7xl mx-auto">
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 <span className="w-1 h-6 bg-red-600 rounded mr-3"></span>
                 Featured Movies
@@ -123,12 +123,12 @@ const App: React.FC = () => {
                 {featuredMovies.length > 0 ? featuredMovies.map(movie => (
                   <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie)} />
                 )) : (
-                   <p className="text-gray-500 col-span-full">No featured movies found.</p>
+                   <p className="text-gray-500 col-span-full py-10 text-center">No featured movies found.</p>
                 )}
               </div>
             </div>
 
-            <div className="px-4 mt-8">
+            <div className="px-4 mt-12 max-w-7xl mx-auto">
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 <span className="w-1 h-6 bg-red-600 rounded mr-3"></span>
                 Latest Releases
@@ -144,10 +144,10 @@ const App: React.FC = () => {
 
       case View.Categories:
         return (
-          <div className="px-4 pb-24">
-            <h1 className="text-2xl font-bold py-6">Browse Categories</h1>
+          <div className="px-4 pb-32 pt-4 max-w-7xl mx-auto overflow-x-hidden">
+            <h1 className="text-2xl font-bold mb-6">Browse Categories</h1>
             <CategoryFilter categories={categories.map(c => c.name)} activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8">
               {filteredMovies.map(movie => (
                 <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie)} />
               ))}
@@ -157,8 +157,8 @@ const App: React.FC = () => {
 
       case View.Search:
         return (
-          <div className="px-4 pb-24">
-            <div className="py-6">
+          <div className="px-4 pb-32 pt-4 max-w-7xl mx-auto overflow-x-hidden">
+            <div className="mb-8">
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
               <AZFilter activeLetter={activeLetter} onLetterChange={setActiveLetter} />
             </div>
@@ -178,7 +178,10 @@ const App: React.FC = () => {
 
       case View.Details:
         return selectedMovie ? (
-          <MovieDetails movie={selectedMovie} onBack={() => setCurrentView(View.Home)} />
+          <MovieDetails movie={selectedMovie} onBack={() => {
+            setCurrentView(View.Home);
+            window.scrollTo(0, 0);
+          }} />
         ) : null;
 
       default:
@@ -187,9 +190,13 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pb-16 md:pb-0 md:pt-16">
-      <Header onLogoClick={() => setCurrentView(View.Home)} />
-      <main className="max-w-7xl mx-auto">
+    <div className="flex flex-col min-h-screen">
+      <Header onLogoClick={() => {
+        setCurrentView(View.Home);
+        window.scrollTo(0, 0);
+      }} />
+      {/* pt-16 ensures content starts below the fixed header on all screens */}
+      <main className="flex-grow pt-16 w-full overflow-x-hidden">
         {renderContent()}
       </main>
       <BottomNav activeView={currentView} onNavClick={setCurrentView} />
