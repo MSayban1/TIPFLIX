@@ -17,13 +17,13 @@ const AdminApp: React.FC = () => {
 
   useEffect(() => {
     // Auth Listener
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setAdminUser(user);
     });
 
-    // Database Listeners
+    // Movies Listener
     const moviesRef = ref(db, 'movies');
-    onValue(moviesRef, (snapshot) => {
+    const unsubscribeMovies = onValue(moviesRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const movieList = Object.keys(data).map(key => ({
@@ -36,8 +36,9 @@ const AdminApp: React.FC = () => {
       }
     });
 
+    // Banners Listener
     const bannersRef = ref(db, 'banners');
-    onValue(bannersRef, (snapshot) => {
+    const unsubscribeBanners = onValue(bannersRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const bannerList = Object.keys(data).map(key => ({
@@ -50,8 +51,9 @@ const AdminApp: React.FC = () => {
       }
     });
 
+    // Categories Listener
     const categoriesRef = ref(db, 'metadata/categories');
-    onValue(categoriesRef, (snapshot) => {
+    const unsubscribeCats = onValue(categoriesRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const list = Object.keys(data).map(key => ({ id: key, name: data[key] }));
@@ -61,8 +63,9 @@ const AdminApp: React.FC = () => {
       }
     });
 
+    // Genres Listener
     const genresRef = ref(db, 'metadata/genres');
-    onValue(genresRef, (snapshot) => {
+    const unsubscribeGenres = onValue(genresRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const list = Object.keys(data).map(key => ({ id: key, name: data[key] }));
@@ -72,12 +75,21 @@ const AdminApp: React.FC = () => {
       }
       setLoading(false);
     });
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeMovies();
+      unsubscribeBanners();
+      unsubscribeCats();
+      unsubscribeGenres();
+    };
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f172a]">
         <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-500 font-medium tracking-widest uppercase text-xs">Authenticating...</p>
       </div>
     );
   }
@@ -92,13 +104,13 @@ const AdminApp: React.FC = () => {
         genres={genres}
         onLogout={() => signOut(auth)} 
       />
-      {adminUser && (
-        <div className="fixed bottom-4 left-4">
-           <a href="/index.html" className="text-gray-500 hover:text-white flex items-center text-sm font-medium">
-             <i className="fas fa-arrow-left mr-2"></i> Return to Main Site
-           </a>
-        </div>
-      )}
+      
+      <div className="fixed bottom-6 left-6 z-[100]">
+        <a href="/index.html" className="group flex items-center bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md px-4 py-2 rounded-full border border-white/5 shadow-2xl transition-all active:scale-95">
+          <i className="fas fa-arrow-left text-red-600 mr-2 group-hover:-translate-x-1 transition-transform"></i>
+          <span className="text-xs font-bold text-gray-300">MAIN SITE</span>
+        </a>
+      </div>
     </div>
   );
 };
