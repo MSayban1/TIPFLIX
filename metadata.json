@@ -1,0 +1,8 @@
+{
+  "name": "TIPFLIX",
+  "description": "A premium movie streaming and listing application featuring Hollywood, Bollywood, TV Series, and Cartoons with a full admin dashboard.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
