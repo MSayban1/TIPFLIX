@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Movies Listener
     const moviesRef = ref(db, 'movies');
     onValue(moviesRef, (snapshot) => {
       const data = snapshot.val();
@@ -41,6 +42,7 @@ const App: React.FC = () => {
       setLoading(false);
     });
 
+    // Banners Listener
     const bannersRef = ref(db, 'banners');
     onValue(bannersRef, (snapshot) => {
       const data = snapshot.val();
@@ -55,6 +57,7 @@ const App: React.FC = () => {
       }
     });
 
+    // Categories Listener - Fetches existing categories from Firebase
     const categoriesRef = ref(db, 'metadata/categories');
     onValue(categoriesRef, (snapshot) => {
       const data = snapshot.val();
@@ -120,7 +123,7 @@ const App: React.FC = () => {
             <div className="px-4 mt-12 max-w-7xl mx-auto">
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 <span className="w-1 h-6 bg-red-600 rounded mr-3"></span>
-                Latest
+                Latest Releases
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {movies.filter(m => m.visible).slice(0, 20).map(movie => (
@@ -134,12 +137,17 @@ const App: React.FC = () => {
       case View.Categories:
         return (
           <div className="px-4 pb-32 pt-4 max-w-7xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Categories</h1>
+            <h1 className="text-2xl font-bold mb-6">Browse Categories</h1>
             <CategoryFilter categories={categories.map(c => c.name)} activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8">
               {filteredMovies.map(movie => (
                 <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie)} />
               ))}
+              {filteredMovies.length === 0 && (
+                <div className="col-span-full py-20 text-center text-gray-500">
+                  No movies found in this category.
+                </div>
+              )}
             </div>
           </div>
         );
@@ -155,6 +163,11 @@ const App: React.FC = () => {
               {filteredMovies.map(movie => (
                 <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie)} />
               ))}
+              {filteredMovies.length === 0 && searchQuery && (
+                <div className="col-span-full py-20 text-center text-gray-500">
+                  No matches for "{searchQuery}"
+                </div>
+              )}
             </div>
           </div>
         );
@@ -173,12 +186,13 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col">
+    <div className="w-full flex flex-col min-h-screen">
       <Header onLogoClick={() => {
         setCurrentView(View.Home);
         window.scrollTo(0, 0);
       }} />
-      <main className="flex-grow pt-16 w-full">
+      {/* Ensure main container is scrollable and starts below header */}
+      <main className="flex-grow pt-16 w-full relative">
         {renderContent()}
       </main>
       <BottomNav activeView={currentView} onNavClick={setCurrentView} />
